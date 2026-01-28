@@ -23,7 +23,11 @@ export default function Users() {
         userService.getDeviceUsers(),
         userService.getTeams(),
       ]);
-      if (usersRes.success) setUsers(usersRes.data);
+      if (usersRes.success) {
+        // Handle paginated response - extract content array
+        const userData = usersRes.data;
+        setUsers(userData.content || userData || []);
+      }
       if (teamsRes.success) setTeams(teamsRes.data);
     } catch (error) {
       console.error('Failed to fetch data:', error);

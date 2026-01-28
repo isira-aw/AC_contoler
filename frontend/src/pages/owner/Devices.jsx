@@ -25,8 +25,16 @@ export default function Devices() {
         deviceService.getOwnerDevices(),
         userService.getDeviceOwners().catch(() => ({ success: true, data: [] })),
       ]);
-      if (devicesRes.success) setDevices(devicesRes.data);
-      if (ownersRes.success) setOwners(ownersRes.data);
+      if (devicesRes.success) {
+        // Handle paginated response - extract content array
+        const deviceData = devicesRes.data;
+        setDevices(deviceData.content || deviceData || []);
+      }
+      if (ownersRes.success) {
+        // Handle paginated response for owners as well
+        const ownerData = ownersRes.data;
+        setOwners(ownerData.content || ownerData || []);
+      }
     } catch (error) {
       console.error('Failed to fetch devices:', error);
     } finally {

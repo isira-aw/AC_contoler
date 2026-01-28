@@ -21,7 +21,11 @@ export default function OwnerDashboard() {
         deviceService.getOwnerDevices(),
       ]);
       if (statsRes.success) setStats(statsRes.data);
-      if (devicesRes.success) setDevices(devicesRes.data);
+      if (devicesRes.success) {
+        // Handle paginated response - extract content array
+        const deviceData = devicesRes.data;
+        setDevices(deviceData.content || deviceData || []);
+      }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
