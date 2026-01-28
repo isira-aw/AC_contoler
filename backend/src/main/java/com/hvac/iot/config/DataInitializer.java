@@ -33,8 +33,10 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (superAdminRepository.count() > 0) {
-            log.info("Database already initialized, skipping seed data");
+        // Check if any data exists in the database (more robust check)
+        if (superAdminRepository.count() > 0 || deviceRepository.count() > 0 || teamRepository.count() > 0) {
+            log.info("Database already contains data, skipping seed data initialization");
+            log.info("To reinitialize, clear the database tables first");
             return;
         }
 
@@ -85,12 +87,19 @@ public class DataInitializer implements CommandLineRunner {
                 .owner(owner2)
                 .build();
         team3 = teamRepository.save(team3);
-        log.info("Created 3 Teams");
+
+        Team team4 = Team.builder()
+                .name("Building A - Lobby")
+                .owner(owner1)
+                .build();
+        team4 = teamRepository.save(team4);
+        log.info("Created 4 Teams");
 
         // Create Device Users
         Set<Team> user1Teams = new HashSet<>();
         user1Teams.add(team1);
         user1Teams.add(team2);
+        user1Teams.add(team4);
 
         DeviceUser user1 = DeviceUser.builder()
                 .name("Mike Wilson")
@@ -173,7 +182,7 @@ public class DataInitializer implements CommandLineRunner {
                 .id("YORK-004")
                 .name("HVAC Unit 4 - Lobby")
                 .owner(owner1)
-                .team(team1)
+                .team(team4)
                 .licenseActive(false)
                 .lastHeartbeat(LocalDateTime.now().minusHours(2))
                 .powerStatus("OFF")
