@@ -42,6 +42,11 @@ export const getUser = () => {
   return null;
 };
 
+export const getRole = () => {
+  const user = getUser();
+  return user ? user.role : null;
+};
+
 export const isAuthenticated = () => {
   return !!localStorage.getItem('token') && !!getUser();
 };
