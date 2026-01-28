@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import DeviceCard from '../../components/DeviceCard';
 import Modal from '../../components/Modal';
@@ -92,15 +91,10 @@ export default function Devices() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {devices.map((device) => (
             <div key={device.id} className="relative">
-              <Link to={`/owner/devices/${device.id}`}>
-                <DeviceCard device={device} />
-              </Link>
+              <DeviceCard device={device} />
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  openTransferModal(device);
-                }}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 bg-white rounded-full shadow-sm"
+                onClick={() => openTransferModal(device)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 bg-white rounded-full shadow-sm z-10"
                 title="Transfer Ownership"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

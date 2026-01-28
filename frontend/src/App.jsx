@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import { getRole, isAuthenticated } from './utils/roleUtils';
 
 // Public Pages
@@ -65,122 +65,141 @@ function AuthRoute({ children }) {
   return children;
 }
 
+// Create router with future flags to prevent deprecation warnings
+const router = createBrowserRouter(
+  [
+    // Public Routes
+    {
+      path: '/',
+      element: <Navigate to="/home" replace />,
+    },
+    {
+      path: '/home',
+      lazy: () => import('./pages/Home').then((m) => ({ Component: m.default })),
+    },
+    {
+      path: '/login',
+      element: (
+        <AuthRoute>
+          <Login />
+        </AuthRoute>
+      ),
+    },
+    {
+      path: '/reset-password',
+      element: <ResetPassword />,
+    },
+    {
+      path: '/reset-password/:token',
+      element: <ResetPasswordConfirm />,
+    },
+    // SuperAdmin Routes
+    {
+      path: '/superadmin/dashboard',
+      element: (
+        <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+          <SuperAdminDashboard />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/superadmin/device-owners',
+      element: (
+        <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+          <SuperAdminDeviceOwners />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/superadmin/devices',
+      element: (
+        <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+          <SuperAdminDevices />
+        </ProtectedRoute>
+      ),
+    },
+    // DeviceOwner Routes
+    {
+      path: '/owner/dashboard',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
+          <OwnerDashboard />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/owner/teams',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
+          <OwnerTeams />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/owner/users',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
+          <OwnerUsers />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/owner/devices',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
+          <OwnerDevices />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/owner/devices/:deviceId',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
+          <OwnerDeviceDetail />
+        </ProtectedRoute>
+      ),
+    },
+    // DeviceUser Routes
+    {
+      path: '/user/dashboard',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_USER']}>
+          <UserDashboard />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/user/devices',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_USER']}>
+          <UserDevices />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/user/devices/:deviceId',
+      element: (
+        <ProtectedRoute allowedRoles={['DEVICE_USER']}>
+          <UserDeviceDetail />
+        </ProtectedRoute>
+      ),
+    },
+    // Catch-all
+    {
+      path: '*',
+      element: <Navigate to="/home" replace />,
+    },
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  }
+);
+
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            <AuthRoute>
-              <Login />
-            </AuthRoute>
-          }
-        />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordConfirm />} />
-
-        {/* SuperAdmin Routes */}
-        <Route
-          path="/superadmin/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
-              <SuperAdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/superadmin/device-owners"
-          element={
-            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
-              <SuperAdminDeviceOwners />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/superadmin/devices"
-          element={
-            <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
-              <SuperAdminDevices />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* DeviceOwner Routes */}
-        <Route
-          path="/owner/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
-              <OwnerDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/teams"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
-              <OwnerTeams />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/users"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
-              <OwnerUsers />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/devices"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
-              <OwnerDevices />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/owner/devices/:deviceId"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_OWNER']}>
-              <OwnerDeviceDetail />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* DeviceUser Routes */}
-        <Route
-          path="/user/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_USER']}>
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/user/devices"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_USER']}>
-              <UserDevices />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/user/devices/:deviceId"
-          element={
-            <ProtectedRoute allowedRoles={['DEVICE_USER']}>
-              <UserDeviceDetail />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Default Redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
