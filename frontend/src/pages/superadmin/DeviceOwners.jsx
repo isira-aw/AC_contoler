@@ -19,10 +19,13 @@ export default function DeviceOwners() {
     try {
       const response = await userService.getDeviceOwners();
       if (response.success) {
-        setOwners(response.data);
+        // Handle paginated response - extract content array
+        const ownerData = response.data;
+        setOwners(ownerData.content || ownerData || []);
       }
     } catch (error) {
       console.error('Failed to fetch owners:', error);
+      setOwners([]);
     } finally {
       setLoading(false);
     }
