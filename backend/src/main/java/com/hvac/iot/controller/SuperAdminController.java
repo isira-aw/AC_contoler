@@ -6,6 +6,9 @@ import com.hvac.iot.service.DeviceService;
 import com.hvac.iot.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +37,14 @@ public class SuperAdminController {
     }
 
     @GetMapping("/device-owners")
-    public ResponseEntity<ApiResponse<List<DeviceOwnerDTO>>> getAllDeviceOwners() {
-        List<DeviceOwnerDTO> owners = userService.getAllDeviceOwners();
+    public ResponseEntity<ApiResponse<PageResponse<DeviceOwnerDTO>>> getAllDeviceOwners(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<DeviceOwnerDTO> owners = userService.getAllDeviceOwnersPaged(pageable);
         return ResponseEntity.ok(ApiResponse.success(owners));
     }
 
@@ -62,8 +71,14 @@ public class SuperAdminController {
     }
 
     @GetMapping("/devices")
-    public ResponseEntity<ApiResponse<List<DeviceDTO>>> getAllDevices() {
-        List<DeviceDTO> devices = deviceService.getAllDevices();
+    public ResponseEntity<ApiResponse<PageResponse<DeviceDTO>>> getAllDevices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<DeviceDTO> devices = deviceService.getAllDevicesPaged(pageable);
         return ResponseEntity.ok(ApiResponse.success(devices));
     }
 

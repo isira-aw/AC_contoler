@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Layout from '../../components/Layout';
 import Modal from '../../components/Modal';
+import Pagination from '../../components/Pagination';
 import deviceService from '../../services/deviceService';
 import userService from '../../services/userService';
 
@@ -14,24 +15,38 @@ export default function SuperAdminDevices() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
       const [devicesRes, ownersRes] = await Promise.all([
-        deviceService.getAllDevices(),
-        userService.getDeviceOwners(),
+        deviceService.getAllDevices(page, pageSize),
+        userService.getDeviceOwners(0, 100),
       ]);
-      if (devicesRes.success) setDevices(devicesRes.data);
-      if (ownersRes.success) setOwners(ownersRes.data);
+      if (devicesRes.success) {
+        const data = devicesRes.data;
+        setDevices(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      }
+      if (ownersRes.success) {
+        setOwners(ownersRes.data.content || ownersRes.data || []);
+      }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -191,6 +206,17 @@ export default function SuperAdminDevices() {
               )}
             </tbody>
           </table>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalElements={totalElements}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(0);
+            }}
+          />
         </div>
       )}
 

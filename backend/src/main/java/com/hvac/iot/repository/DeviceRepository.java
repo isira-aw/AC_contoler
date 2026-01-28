@@ -1,6 +1,8 @@
 package com.hvac.iot.repository;
 
 import com.hvac.iot.model.Device;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,7 @@ import java.util.UUID;
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, String> {
     List<Device> findByOwnerId(UUID ownerId);
+    Page<Device> findByOwnerId(UUID ownerId, Pageable pageable);
     List<Device> findByTeamId(UUID teamId);
 
     @Query("SELECT d FROM Device d WHERE d.team.id IN " +

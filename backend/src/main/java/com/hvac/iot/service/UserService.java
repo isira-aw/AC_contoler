@@ -5,6 +5,8 @@ import com.hvac.iot.model.*;
 import com.hvac.iot.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public PageResponse<DeviceOwnerDTO> getAllDeviceOwnersPaged(Pageable pageable) {
+        Page<DeviceOwner> page = deviceOwnerRepository.findAll(pageable);
+        List<DeviceOwnerDTO> content = page.getContent().stream()
+                .map(this::mapToDeviceOwnerDTO)
+                .collect(Collectors.toList());
+        return PageResponse.from(page, content);
+    }
+
     public DeviceOwnerDTO getDeviceOwnerById(UUID id) {
         DeviceOwner owner = deviceOwnerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("DeviceOwner not found"));
@@ -101,6 +111,14 @@ public class UserService {
         return deviceUserRepository.findByCreatedById(ownerId).stream()
                 .map(this::mapToDeviceUserDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponse<DeviceUserDTO> getDeviceUsersByOwnerPaged(UUID ownerId, Pageable pageable) {
+        Page<DeviceUser> page = deviceUserRepository.findByCreatedById(ownerId, pageable);
+        List<DeviceUserDTO> content = page.getContent().stream()
+                .map(this::mapToDeviceUserDTO)
+                .collect(Collectors.toList());
+        return PageResponse.from(page, content);
     }
 
     @Transactional

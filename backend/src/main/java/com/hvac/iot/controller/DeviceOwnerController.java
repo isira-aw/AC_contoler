@@ -5,6 +5,9 @@ import com.hvac.iot.security.UserPrincipal;
 import com.hvac.iot.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -86,9 +89,15 @@ public class DeviceOwnerController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<List<DeviceUserDTO>>> getUsers(
+    public ResponseEntity<ApiResponse<PageResponse<DeviceUserDTO>>> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
             @AuthenticationPrincipal UserPrincipal principal) {
-        List<DeviceUserDTO> users = userService.getDeviceUsersByOwner(principal.getUserIdAsUUID());
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<DeviceUserDTO> users = userService.getDeviceUsersByOwnerPaged(principal.getUserIdAsUUID(), pageable);
         return ResponseEntity.ok(ApiResponse.success(users));
     }
 
@@ -119,9 +128,15 @@ public class DeviceOwnerController {
 
     // Device Management
     @GetMapping("/devices")
-    public ResponseEntity<ApiResponse<List<DeviceDTO>>> getDevices(
+    public ResponseEntity<ApiResponse<PageResponse<DeviceDTO>>> getDevices(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
             @AuthenticationPrincipal UserPrincipal principal) {
-        List<DeviceDTO> devices = deviceService.getDevicesByOwner(principal.getUserIdAsUUID());
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<DeviceDTO> devices = deviceService.getDevicesByOwnerPaged(principal.getUserIdAsUUID(), pageable);
         return ResponseEntity.ok(ApiResponse.success(devices));
     }
 

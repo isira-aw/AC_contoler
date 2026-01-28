@@ -5,6 +5,8 @@ import com.hvac.iot.model.*;
 import com.hvac.iot.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,6 +88,22 @@ public class DeviceService {
         return deviceRepository.findAll().stream()
                 .map(this::mapToDeviceDTO)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponse<DeviceDTO> getAllDevicesPaged(Pageable pageable) {
+        Page<Device> page = deviceRepository.findAll(pageable);
+        List<DeviceDTO> content = page.getContent().stream()
+                .map(this::mapToDeviceDTO)
+                .collect(Collectors.toList());
+        return PageResponse.from(page, content);
+    }
+
+    public PageResponse<DeviceDTO> getDevicesByOwnerPaged(UUID ownerId, Pageable pageable) {
+        Page<Device> page = deviceRepository.findByOwnerId(ownerId, pageable);
+        List<DeviceDTO> content = page.getContent().stream()
+                .map(this::mapToDeviceDTO)
+                .collect(Collectors.toList());
+        return PageResponse.from(page, content);
     }
 
     public DeviceDTO getDeviceById(String deviceId) {

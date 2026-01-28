@@ -21,8 +21,10 @@ export const deviceService = {
     return response.data;
   },
 
-  getAllDevices: async () => {
-    const response = await api.get('/superadmin/devices');
+  getAllDevices: async (page = 0, size = 10, sortBy = 'createdAt', sortDir = 'desc') => {
+    const response = await api.get('/superadmin/devices', {
+      params: { page, size, sortBy, sortDir }
+    });
     return response.data;
   },
 
@@ -37,8 +39,10 @@ export const deviceService = {
   },
 
   // Owner endpoints
-  getOwnerDevices: async () => {
-    const response = await api.get('/owner/devices');
+  getOwnerDevices: async (page = 0, size = 10, sortBy = 'createdAt', sortDir = 'desc') => {
+    const response = await api.get('/owner/devices', {
+      params: { page, size, sortBy, sortDir }
+    });
     return response.data;
   },
 
